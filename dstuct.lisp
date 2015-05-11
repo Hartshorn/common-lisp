@@ -23,8 +23,7 @@
 
 (defun lst_splice_into (index value lst)
   (when (<= index (lst_size lst))
-    (let ((vals (lst-vals lst))
-	  (first_half  (loop 
+    (let ((first_half  (loop 
 			 for i upfrom 1 to index 
 			 collect (lst_index i lst)))
 	  (second_half (loop 
@@ -32,7 +31,8 @@
 			     collect (lst_index i lst))))
       (progn
 	(lst_reset lst)
-	(let ((b (reverse first_half))) (progn (push value b) (setq first_half b)))
+	(let ((b (reverse first_half))) 
+          (progn (push value b) (setq first_half b)))
 	(lst_add_list (reverse second_half) lst)
 	(lst_add_list first_half lst))))
   (setf (lst-vals lst) (reverse (lst-vals lst))))
@@ -51,3 +51,8 @@
     (lst_reset lst)
     (lst_add_list newlist 
 		 lst))))
+
+
+
+
+

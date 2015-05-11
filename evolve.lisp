@@ -7,10 +7,10 @@
 (defparameter *reproduction-energy* 200)
 (defparameter *animals*
   (list (make-animal :x      (ash *width*  -1)
-		             :y	     (ash *height* -1)
-		             :energy 1000
-		             :dir    0
-		             :genes  (loop repeat 8 collecting (1+ (random 10))))))
+		     :y	     (ash *height* -1)
+		     :energy 1000
+		     :dir    0
+		     :genes  (loop repeat 8 collecting (1+ (random 10))))))
 
 (defun random-plant (left top width height)
   (let ((pos (cons (+ left (random width)) (+ top (random height)))))
@@ -27,11 +27,15 @@
     (setf (animal-x animal) (mod (+ x
 				    (cond ((and (>= dir 2) (< dir 5)) 1)
 					  ((or  (=  dir 1) (= dir 5)) 0)
-					  (t -1)) *width*) *width*))
+					  (t -1)) 
+                                    *width*) 
+                                 *width*))
     (setf (animal-y animal) (mod (+ y
 				    (cond ((and (>= dir 0) (< dir 3)) -1)
 					  ((and (>= dir 4) (< dir 7))  1)
-					  (t 0)) *height*) *height*))
+					  (t 0)) 
+                                    *height*) 
+                                 *height*))
     (decf (animal-energy animal))))
 
 (defun turn (animal)
@@ -60,13 +64,23 @@
 	(push new-animal *animals*)))))
 
 (defun update-world ()
-  (setf *animals* (remove-if (lambda (animal) (<= (animal-energy animal) 0)) *animals*))
-  (mapc (lambda (animal) (turn animal) (move animal) (eat  animal) (reproduce animal)) *animals*)
+  (setf *animals* 
+        (remove-if (lambda (animal) (<= (animal-energy animal) 0)) *animals*))
+  (mapc (lambda 
+          (animal) 
+          (turn animal) 
+          (move animal) 
+          (eat  animal) 
+          (reproduce animal)) 
+        *animals*)
   (add-plants))
 
 (defun draw-world ()
-  (loop initially (format t " Animals: ~d " (length *animals*)) for y below *height*
-	do (progn (fresh-line) 
+  (loop initially (format t " Animals: ~d Plants: ~d" 
+                          (length *animals*) 
+                          (hash-table-count *plants*))
+        for y below *height*
+        do (progn (fresh-line) 
 		  (princ "|")
 		  (loop for x below *width*
 			do (princ (cond ((some (lambda (animal)
