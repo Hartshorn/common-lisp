@@ -55,26 +55,30 @@
 	(loop for i in as collect 
 	      (mapcar (lambda (x) (+ x i)) 
 		      (loop for i in as collect i)))))))
+(defun abun-sums! (n m)
+  (let ((as (abuns-upto n m)))
+    (loop for i in as collect (* i i))))
 
 
-(defvar n1 (abun-sums 0 1000))
-(defvar n2 (abun-sums 1001 2000))
-(defvar n3 (abun-sums 2001 3000))
-(defvar n4 (abun-sums 3001 4000))
-(defvar n5 (abun-sums 4001 5000))
-(defvar n6 (abun-sums 5001 6000))
-(defvar n7 (abun-sums 6001 7000))
-(defvar n9 (abun-sums 7001 8000))
-(defvar n10 (abun-sums 8001 9000))
-(defvar n11 (abun-sums 9001 10000))
-(defvar n12 (abun-sums 10001 11000))
-(defvar n13 (abun-sums 11001 12000))
-(defvar n14 (abun-sums 12001 13000))
-(defvar n15 (abun-sums 13001 14000))
+
+(defvar n1 (abun-sums! 0 1000))
+(defvar n2 (abun-sums! 1001 2000))
+(defvar n3 (abun-sums! 2001 3000))
+(defvar n4 (abun-sums! 3001 4000))
+(defvar n5 (abun-sums! 4001 5000))
+(defvar n6 (abun-sums! 5001 6000))
+(defvar n7 (abun-sums! 6001 7000))
+(defvar n8 (abun-sums! 7001 8000))
+(defvar n9 (abun-sums! 8001 9000))
+(defvar n10 (abun-sums! 9001 10000))
+(defvar n11 (abun-sums! 10001 11000))
+(defvar n12 (abun-sums! 11001 12000))
+(defvar n13 (abun-sums! 12001 13000))
+(defvar n14 (abun-sums! 13001 14000))
 
 ;; this needs to go higher - I think to 28000?
 ;; that's why the answer was the same before. . .
-(defvar vals (loop for i from 0 to 28000 
+(defvar vals (loop for i from 0 to 28123 
 		   if (not (or 
 			     (member i n1)
 			     (member i n2)
@@ -89,7 +93,6 @@
 			     (member i n11)
 			     (member i n12)
 			     (member i n13)
-			     (member i n14)
-			     (member i n15))) collect i))
+			     (member i n14))) collect i))
 
 (defvar answer (apply #'+ vals))
