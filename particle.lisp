@@ -1,24 +1,23 @@
 (defun rp ()
   (load "particle.lisp"))
-
+; a size of 165 X 46 will almost fill your screen
 (defparameter *world* '())
-(defparameter *width* 100)
-(defparameter *height* 30)
+(defparameter *width* 165)
+(defparameter *height* 46)
 
-(defparameter *c-flip* (list (cons 1 5) (cons 5 1) 
-														 (cons 3 7) (cons 7 3)))
+(defparameter *c-flip* (list (cons 1 5) (cons 5 1) (cons 3 7) (cons 7 3)))
 
 (defparameter *corners* (list (cons 0 0) (cons *width* *height*) 
-															(cons *width* 0) (cons 0 *height*)))
+                              (cons *width* 0) (cons 0 *height*)))
 
 (defparameter *opposites* (list (cons 0 4)
-																(cons 1 5)
-																(cons 2 6)
-																(cons 3 7)
-																(cons 4 0)
-																(cons 5 1)
-																(cons 6 2)
-																(cons 7 3)))
+				(cons 1 5)
+			        (cons 2 6)
+			        (cons 3 7)
+                                (cons 4 0)
+                                (cons 5 1)
+                                (cons 6 2)
+                                (cons 7 3)))
 
 (defstruct p x y d)
 
@@ -72,7 +71,6 @@
 		(< (p-y i) 0)
 		(> (p-x i) *width*)
 		(> (p-y i) *height*))
-	do
 	(setf (p-d i) (mod (+ (p-d i) 2) 8)))))
 
 
@@ -93,7 +91,8 @@
   (let ((directions (mapcar (lambda (x) (cdr (assoc x *opposites*))) 
 			    (mapcar #'get-member-direction 
 				    (intersection (make-position-list loc) 
-						  (mapcar #'get-pos *world*) :test 'equal)))))
+						  (mapcar #'get-pos *world*) :
+                                                  test 'equal)))))
     (member d directions)))
 
 
@@ -150,7 +149,7 @@
 	   ((5) 7)
 	   ((6) 2)
 	   ((2) 6)))
-	((t d))))
+	(t d)))
 
 (defun in-corner (loc)
   (loop for i in *corners* if (equal i loc) return t))
@@ -160,7 +159,6 @@
 	      (eq d 5))
 	 t)
 	((and (equal loc (cons *width* 0))
-
 	      (eq d 3))
 	 t)
 	((and (equal loc (cons 0 *height*))
@@ -195,19 +193,20 @@
 
 (defun p_world ()
   (loop 
-    initially (loop for i below (+ 3 *width*) do (princ "_" )) 
+    ;initially (loop for i below (+ 3 *width*) do (princ "_" )) 
 	for y below (1+ *height*)
 	do (progn (fresh-line)
-		  (princ "|")
+		  ;(princ "|")
 		  (loop for x below (1+ *width*)
 			do (princ (cond ((some (lambda (p)
 						 (and (= (p-x p) x)
 						      (= (p-y p) y)))
 					       *world*) #\*)
 					(t #\space))))
-		  (princ "|")
+		  ;(princ "|")
 		  (fresh-line))
-	finally (loop for i below (+ 3 *width*) do (princ "=" ))))
+	;finally (loop for i below (+ 3 *width*) do (princ "-" ))
+        ))
 
 (defun particle ()
   (p_world)
