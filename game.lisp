@@ -5,6 +5,13 @@
   "Reload Game"
   (load "game.lisp"))
 
+;; for reference: the compass is this:
+;;	5 4 3
+;;	6 f 2
+;;	7 0 1
+;; so adding one (turn-player 1) will turn left, relative
+;; and minus one (turn-player -1) will turn right, relative
+
 
 (defun colors ()
   (loop for i from 90 to 107 do
@@ -13,7 +20,7 @@
 	(format t "~d: ~c[~dmCOLORS~c[0m~%" i #\ESC i #\ESC)))
 
 ;; width of 70 works for home screen
-(defparameter *width*  50)
+(defparameter *width*  70)
 (defparameter *height* (floor (* 2 (/ *width* 3))))
 (defparameter *scale*  (floor (/ (+ *width* *height*) 2)))
 (defparameter *world* (make-hash-table :test #'equal))
@@ -51,13 +58,26 @@
 		    (t (show-structure 's)))) 
 	(fresh-line)))
 
+(defun do-action (str)
+  (case str
+    ('turnl (progn (turn-player 1) (do-action 'player)))
+    ('turnr (progn (turn-player -1) (do-action 'player)))
+    ('player (print (get-player)))
+    ('show (print (show-world)))
+    ('chest (if (chest-nearby) 
+	      (print (open-chest)) 
+	      (print "No-Chest-Error")))
+    ))
+
 (defun game ()
   (fresh-line)
-  (draw-world)
   (let ((str (read-line)))
     (cond ((equal str "quit") ())
-	  ;;((do-action str)) do something - move, open chest, fight, etc
-	  (t 
-	     (move-player)
-	     (draw-world)
-	     (game)))))
+	  ((equal str "turn left") (do-action 'turnl) (game))
+	  ((equal str "turn right") (do-action 'turnr) (game))
+	  ((equal str "player") (do-action 'player) (game))
+	  ((equal str "show")   (do-action 'show) (game))
+	  ((equal str "open chest") (do-action 'chest) (game))
+	  (t (move-player)
+	      (draw-world)
+	      (game)))))

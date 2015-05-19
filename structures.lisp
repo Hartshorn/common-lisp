@@ -48,13 +48,16 @@
 
 (defun show-structure (n)
   (case n
-    ('r (format t "~c[2mR~c[0m"  #\ESC #\ESC))
-    ('t (format t "~c[~dmT~c[0m" #\ESC (nth (random 4) (list 32 33 92 93)) #\ESC))
+    ('r (format t "~c[2mO~c[0m"  #\ESC #\ESC))
+    ('t (format t "~c[~dmT~c[0m" #\ESC (nth (random 4) 
+					    (list 32 33 92 93)) #\ESC))
     ('c (format t "~c[31m=~c[0m" #\ESC #\ESC))
-    ('m (format t "~c[~dmM~c[0m" #\ESC (nth (random 2) (list 30 90)) #\ESC))
+    ('m (format t "~c[~dmM~c[0m" #\ESC (nth (random 2) 
+					    (list 30 90)) #\ESC))
     ('s (format t "~c[0m~A~c[0m" #\ESC #\SPACE #\ESC))
     ('p (format t "~c[91mf~c[0m" #\ESC #\ESC))
-    ('l (format t "~c[~dmW~c[0m" #\ESC (nth (random 2) (list 34 94)) #\ESC))))
+    ('l (format t "~c[~dmW~c[0m" #\ESC (nth (random 2) 
+					    (list 34 94)) #\ESC))))
 
 (defun add-random-item (name)
   (add-point (random *width*) (random *height*) name))

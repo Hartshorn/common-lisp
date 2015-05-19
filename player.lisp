@@ -50,8 +50,12 @@
   (let ((new-loc (get-next-loc dir loc)))
     (if (gethash new-loc *world*) 0 1)))
 
-;; Create a list of all possible movements in each direction (8 values 0 - 7, 1 or 0 each)
-;; something like '(1 0 1 1 0 0 1 0), where the 1's are places we can move, 0's are not.
+;; This is a map of possible moves: 1 yes 0 no
+;; paired with the directions possible.  (dir . yes/no)
+;; '((4 . 0) (5 . 1) (6 . 0) (7 . 1) (0 . 1) (1 . 1) (2 . 0) (3 . 1))
+;; the order changes depending on the starting direction, but
+;; the first direction will always be the last in the list
+;; (the first one pushed on)
 (defun movement-map ()
   (let ((dir (player-d (get-player))))
     (let ((directions (loop repeat 8 do
@@ -59,6 +63,15 @@
 			    collect dir)))
       (loop for d in directions
 	    collect (cons d (can-move-p d (get-player-loc)))))))
+
+(defun chest-nearby ()
+  (if (member 'chest
+    (mapcar (lambda (x) (gethash x *world*))
+	  (mapcar (lambda (x) (get-next-loc x (get-player-loc)))
+		  (loop for m in (movement-map)
+			if (eq (cdr m) 0) collect (car m)))))
+	  t
+	  nil))
 
 (defun place-player ()
   (create-player)
@@ -90,6 +103,11 @@
       (setf (gethash (cons (player-x p)
 			   (player-y p)) *world*) p))))
 
+(defun get-chest-loc ()
+  (car (loop for val being each hash-value in *world*
+       	     for key being each hash-key in *World*
+	     if (equal 'chest val) collect key)))
+
 ;; what else can we do inside. . .?
 (defun open-chest ()
   (let ((loot (random 5)))
@@ -102,7 +120,8 @@
 	   (setf (player-e (get-player)) (1- (player-e (get-player))))))
       (3 (print ". . . empty. . . "))
       (4 (format t "~%A ~A" (set-weapon (get-player))))
-      (otherwise (print "A CURSE ON YOU!")))))
+      (otherwise (print "A CURSE ON YOU!"))))
+  (remhash (get-chest-loc) *world*))
 
 (defun get-purse (p)
   (assoc 'coins (player-b p)))
