@@ -17,7 +17,7 @@
 
 ;; change the direction - set with 1 or -1 passed in.
 (defun turn-player (n)
-  (setf (player-d (get-player)) (mod (1+ (player-d (get-player))) 8)))
+  (setf (player-d (get-player)) (mod (+ (player-d (get-player)) n) 8)))
 
 (defun get-player ()
   (car 
@@ -30,7 +30,6 @@
   (cons (player-x (get-player)) 
 	(player-y (get-player))))
 
-;; What is the next position in this direction?
 (defun get-next-loc (dir loc)
   (let ((new-x 0)
 	(new-y 0))
@@ -39,13 +38,12 @@
 	((and (> dir 0) (<= dir 3)) (setf new-x  1))
 	((and (> dir 4) (<= dir 7)) (setf new-x -1)))
       (cond
-	((and (< dir 6) (>= dir 3)) (setf new-y -1))
-	((or (eq dir 7) (eq dir 0) (eq dir 1)) (setf new-y 1)))
+	((and (<  dir 6) (>= dir 3)) (setf new-y -1))
+	((or  (eq dir 7) (eq dir 0)  (eq dir 1)) (setf new-y 1)))
       (setf (car loc) (mod (+ (car loc) new-x) *width*))
       (setf (cdr loc) (mod (+ (cdr loc) new-y) *height*))))
   loc)
 
-;; Look for a structure in the location one space away
 (defun can-move-p (dir loc)
   (let ((new-loc (get-next-loc dir loc)))
     (if (gethash new-loc *world*) 0 1)))
@@ -63,15 +61,6 @@
 			    collect dir)))
       (loop for d in directions
 	    collect (cons d (can-move-p d (get-player-loc)))))))
-
-(defun chest-nearby ()
-  (if (member 'chest
-    (mapcar (lambda (x) (gethash x *world*))
-	  (mapcar (lambda (x) (get-next-loc x (get-player-loc)))
-		  (loop for m in (movement-map)
-			if (eq (cdr m) 0) collect (car m)))))
-	  t
-	  nil))
 
 (defun place-player ()
   (create-player)
@@ -103,12 +92,36 @@
       (setf (gethash (cons (player-x p)
 			   (player-y p)) *world*) p))))
 
-(defun get-chest-loc ()
-  (car (loop for val being each hash-value in *world*
-       	     for key being each hash-key in *World*
-	     if (equal 'chest val) collect key)))
+(defun get-purse ()
+  (assoc 'coins (player-b (get-player))))
 
-;; what else can we do inside. . .?
+(defun add-coin ()
+  (setf (cdr (get-purse)) (1+ (cdr (get-purse))))) 
+
+(defun set-weapon (p)
+  (let ((choice (random 3)))
+    (case choice
+      (0 (progn
+	   (setf (player-w p) 'Sword)
+	   'sword))
+      (1 (progn
+	   (setf (player-w p) 'Bow)
+	   'bow))
+      (2 (progn
+	   (setf (player-w p) 'Noodle)
+	   'noodle)))))
+
+(defun eat-plant ()
+  (let ((poisonous (tornil)))
+    (if poisonous
+      (progn
+	(print "You ate a poisonous plant!")
+	(setf (player-e (get-player)) (1- (player-e (get-player)))))
+      (progn
+	(print "Mmmm tasty!")
+	(setf (player-e (get-player)) (+ (player-e (get-player)) *plant-energy*)))))
+  (remhash (cdr (assoc 'plant (nearby-item-map))) *world*))
+
 (defun open-chest ()
   (let ((loot (random 5)))
     (case loot
@@ -121,24 +134,5 @@
       (3 (print ". . . empty. . . "))
       (4 (format t "~%A ~A" (set-weapon (get-player))))
       (otherwise (print "A CURSE ON YOU!"))))
-  (remhash (get-chest-loc) *world*))
+  (remhash (cdr (assoc 'chest (nearby-item-map))) *world*))
 
-(defun get-purse (p)
-  (assoc 'coins (player-b p)))
-
-(defun add-coin (p)
-  (setf (cdr (assoc 'coins (player-b p))) 
-	(1+ (cdr (assoc 'coins (player-b p))))))
-
-(defun set-weapon (p)
-  (let ((choice (random 2)))
-    (case choice
-      (0 (progn
-	   (setf (player-w p) 'Sword)
-	   'sword))
-      (1 (progn
-	   (setf (player-w p) 'Bow)
-	   'bow))
-      (2 (progn
-	   (setf (player-w p) 'Noodle)
-	   'noodle)))))
